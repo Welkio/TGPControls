@@ -181,7 +181,7 @@ public class TGPCamelLabels: UIControl {
     var lastValue = NSNotFound
     var emphasizedLabels:[UILabel] = []
     var regularLabels:[UILabel] = []
-    var disabledTicks:[Int] = [5, 6]
+    var disabledTicks:[Int] = []
     var disabledColor = UIColor(red:0.88, green:0.88, blue:0.88, alpha:1.0)
 
     // MARK: UIView

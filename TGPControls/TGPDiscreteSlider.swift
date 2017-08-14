@@ -242,7 +242,7 @@ public class TGPDiscreteSlider:TGPSlider_INTERFACE_BUILDER {
         }
     }
 
-    public var disabledTicks: [Int] = [5, 6] {
+    public var disabledTicks: [Int] = [] {
         didSet {
             ticksListener?.tgpSetDisabledTicks(indexes: disabledTicks)
         }
