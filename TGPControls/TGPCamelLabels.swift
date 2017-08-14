@@ -34,8 +34,8 @@ import UIKit
 public class TGPCamelLabels: UIControl {
 
     let validAttributes = [NSLayoutAttribute.top.rawValue,      //  3
-                           NSLayoutAttribute.centerY.rawValue,  // 10
-                           NSLayoutAttribute.bottom.rawValue]   //  4
+        NSLayoutAttribute.centerY.rawValue,  // 10
+        NSLayoutAttribute.bottom.rawValue]   //  4
 
     // Only used if labels.count < 1
     @IBInspectable public var tickCount:Int {
@@ -50,7 +50,7 @@ public class TGPCamelLabels: UIControl {
         }
     }
 
-    @IBInspectable public var ticksDistance:CGFloat = 44.0 {
+    @IBInspectable public var ticksDistance:CGFloat = 64.0 {
         didSet {
             ticksDistance = max(0, ticksDistance)
             layoutTrack()
@@ -59,7 +59,7 @@ public class TGPCamelLabels: UIControl {
 
     @IBInspectable public var value:UInt = 0 {
         didSet {
-            dockEffect(duration: animationDuration)
+            //            dockEffect(duration: animationDuration)
         }
     }
 
@@ -159,7 +159,7 @@ public class TGPCamelLabels: UIControl {
     }
 
     // MARK: Properties
-    
+
     public var names:[String] = [] { // Will dictate the number of ticks
         didSet {
             assert(names.count > 0)
@@ -181,6 +181,8 @@ public class TGPCamelLabels: UIControl {
     var lastValue = NSNotFound
     var emphasizedLabels:[UILabel] = []
     var regularLabels:[UILabel] = []
+    var disabledTicks:[Int] = [5, 6]
+    var disabledColor = UIColor(red:0.88, green:0.88, blue:0.88, alpha:1.0)
 
     // MARK: UIView
 
@@ -248,9 +250,9 @@ public class TGPCamelLabels: UIControl {
 
         let count = names.count
         if count > 0 {
-            var centerX = (bounds.width - (CGFloat(count - 1) * ticksDistance))/2.0
+            var centerX: CGFloat = 64
             let centerY = bounds.height / 2.0
-            for name in names {
+            for (i, name) in names.enumerated() {
                 let upLabel = UILabel.init()
                 emphasizedLabels.append(upLabel)
                 upLabel.text = name
@@ -272,7 +274,7 @@ public class TGPCamelLabels: UIControl {
                 }()
 
                 upLabel.alpha = 0.0
-                addSubview(upLabel)
+                //                addSubview(upLabel)
 
                 let dnLabel = UILabel.init()
                 regularLabels.append(dnLabel)
@@ -283,6 +285,9 @@ public class TGPCamelLabels: UIControl {
                     dnLabel.font = UIFont.boldSystemFont(ofSize: downFontSize)
                 }
                 dnLabel.textColor = downFontColor ?? UIColor.gray
+                if disabledTicks.contains(i) {
+                    dnLabel.textColor = disabledColor
+                }
                 dnLabel.sizeToFit()
                 dnLabel.center = CGPoint(x:centerX, y:centerY)
                 dnLabel.frame = {
@@ -292,18 +297,8 @@ public class TGPCamelLabels: UIControl {
                 }()
                 addSubview(dnLabel)
 
-                centerX += ticksDistance
+                centerX += 64
             }
-
-            // Fix left and right label, if there are at least 2 labels
-            if names.count > 1 {
-                insetLabel(emphasizedLabels.first, withInset: insets, andMultiplier: offCenter)
-                insetLabel(emphasizedLabels.last, withInset: -insets, andMultiplier: -offCenter)
-                insetLabel(regularLabels.first, withInset: insets, andMultiplier: offCenter)
-                insetLabel(regularLabels.last, withInset: -insets, andMultiplier: -offCenter)
-            }
-
-            dockEffect(duration:0.0)
         }
     }
 
@@ -359,7 +354,7 @@ public class TGPCamelLabels: UIControl {
             moveBlock()
         }
     }
-    
+
     func verticalAlign(aView:UIView, alpha:CGFloat, attribute layout:NSLayoutAttribute) {
         switch layout {
         case .top:
@@ -394,5 +389,10 @@ extension TGPCamelLabels : TGPControlsTicksProtocol {
     
     public func tgpValueChanged(value: UInt) {
         self.value = value
+    }
+    
+    public func tgpSetDisabledTicks(indexes: [Int]) {
+        disabledTicks = indexes
+        layoutTrack()
     }
 }
