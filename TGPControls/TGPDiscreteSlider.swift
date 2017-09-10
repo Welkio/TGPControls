@@ -664,8 +664,12 @@ public class TGPDiscreteSlider:TGPSlider_INTERFACE_BUILDER {
     // MARK: Touches
 
     func touchDown(_ touches: Set<UITouch>, animationDuration duration:TimeInterval) {
+        disabledTicks = [4, 5]
         if let touch = touches.first {
             let location = touch.location(in: touch.view)
+            if !isTickAccessible(location: location) {
+                return
+            }
             moveThumbTo(abscisse: location.x, animationDuration: duration)
         }
     }
@@ -673,7 +677,10 @@ public class TGPDiscreteSlider:TGPSlider_INTERFACE_BUILDER {
     func touchUp(_ touches: Set<UITouch>) {
         if let touch = touches.first {
             let location = touch.location(in: touch.view)
-            let tick = pickTickFromSliderPosition(abscisse: location.x)
+            if !isTickAccessible(location: location) {
+                return
+            }
+            let tick = pickTickFromSliderPosition(abscisse: location.x).rounded
             moveThumbToTick(tick: tick)
         }
     }
@@ -689,17 +696,23 @@ public class TGPDiscreteSlider:TGPSlider_INTERFACE_BUILDER {
         return inside
     }
 
+    /// If tick is 0 or contained in disabled ticks it is then inaccessible
+    ///
+    /// - Parameter location: Location of thumb
+    /// - Returns: Boolean indicating whether the thumb can slide
+    func isTickAccessible(location: CGPoint) -> Bool {
+        let tick = pickTickFromSliderPosition(abscisse: location.x).floorInt
+        if let minDisabledTick = disabledTicks.min(), Int(tick) >= minDisabledTick || tick == 0 {
+            return false
+        }
+        return true
+    }
+
     // MARK: Notifications
 
     func moveThumbToTick(tick: UInt) {
         let nonZeroIncrement = ((0 == incrementValue) ? 1 : incrementValue)
         let intValue = Int(minimumValue) + (Int(tick) * nonZeroIncrement)
-        if intValue < 1 {
-            return
-        }
-        if let disabledMin = disabledTicks.min(), intValue >= disabledMin {
-            return
-        }
         if intValue != self.intValue {
             self.intValue = intValue
             sendActionsForControlEvents()
@@ -716,15 +729,9 @@ public class TGPDiscreteSlider:TGPSlider_INTERFACE_BUILDER {
         thumbAbscisse = max(leftMost, min(abscisse, rightMost))
         CATransaction.setAnimationDuration(duration)
 
-        let tick = pickTickFromSliderPosition(abscisse: thumbAbscisse)
+        let tick = pickTickFromSliderPosition(abscisse: thumbAbscisse).rounded
         let nonZeroIncrement = ((0 == incrementValue) ? 1 : incrementValue)
         let intValue = Int(minimumValue) + (Int(tick) * nonZeroIncrement)
-        if intValue < 1 {
-            return
-        }
-        if let disabledMin = disabledTicks.min(), intValue >= disabledMin {
-            return
-        }
         if intValue != self.intValue {
             self.intValue = intValue
             sendActionsForControlEvents()
@@ -733,13 +740,15 @@ public class TGPDiscreteSlider:TGPSlider_INTERFACE_BUILDER {
         setNeedsDisplay()
     }
 
-    func pickTickFromSliderPosition(abscisse: CGFloat) -> UInt {
+    func pickTickFromSliderPosition(abscisse: CGFloat) -> (rounded: UInt, floorInt: UInt) {
         let leftMost = trackRectangle.minX + CGFloat(spacing)
         let rightMost = trackRectangle.maxX - CGFloat(spacing)
         let clampedAbscisse = max(leftMost, min(abscisse, rightMost))
         let ratio = Double(clampedAbscisse - leftMost) / Double(rightMost - leftMost)
         let segments = max(1, tickCount - 1)
-        return UInt(round( Double(segments) * ratio))
+        let floorInt = UInt(floor(Double(segments) * ratio))
+        let roundedInt = UInt(round( Double(segments) * ratio))
+        return (roundedInt, floorInt)
     }
 
     func sendActionForControlEvent(controlEvent:UIControlEvents, with event:UIEvent?) {
