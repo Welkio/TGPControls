@@ -664,7 +664,6 @@ public class TGPDiscreteSlider:TGPSlider_INTERFACE_BUILDER {
     // MARK: Touches
 
     func touchDown(_ touches: Set<UITouch>, animationDuration duration:TimeInterval) {
-        disabledTicks = [4, 5]
         if let touch = touches.first {
             let location = touch.location(in: touch.view)
             if !isTickAccessible(location: location) {
