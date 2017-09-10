@@ -701,7 +701,9 @@ public class TGPDiscreteSlider:TGPSlider_INTERFACE_BUILDER {
     /// - Returns: Boolean indicating whether the thumb can slide
     func isTickAccessible(location: CGPoint) -> Bool {
         let tick = pickTickFromSliderPosition(abscisse: location.x).floorInt
-        if let minDisabledTick = disabledTicks.min(), Int(tick) >= minDisabledTick || tick == 0 {
+        if let minDisabledTick = disabledTicks.min(), Int(tick) >= minDisabledTick {
+            return false
+        } else if tick == 0 {
             return false
         }
         return true
