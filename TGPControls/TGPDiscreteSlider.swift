@@ -261,6 +261,8 @@ public class TGPDiscreteSlider:TGPSlider_INTERFACE_BUILDER {
     var trackRectangle = CGRect.zero
     var touchedInside = false
     var spacing = 64
+    var thumbWidth: CGFloat = 28
+    var thumbHeight: CGFloat = 28
 
     let iOSThumbShadowRadius:CGFloat = 4
     let iOSThumbShadowOffset = CGSize(width:0, height:3)
@@ -596,10 +598,10 @@ public class TGPDiscreteSlider:TGPSlider_INTERFACE_BUILDER {
                 : thumbSize)
 
         case .iOS:
-            return CGSize(width: 28.0
+            return CGSize(width: thumbWidth
                 + (iOSThumbShadowRadius * 2)
                 + (iOSThumbShadowOffset.width * 2),
-                          height: 28.0
+                          height: thumbHeight
                             + (iOSThumbShadowRadius * 2)
                             + (iOSThumbShadowOffset.height * 2))
 
@@ -627,6 +629,10 @@ public class TGPDiscreteSlider:TGPSlider_INTERFACE_BUILDER {
                 sendActionForControlEvent(controlEvent: .touchDownRepeat, with: event)
             }
         }
+
+        thumbHeight = 40
+        thumbWidth = 40
+        drawThumb()
     }
 
     public override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -651,6 +657,10 @@ public class TGPDiscreteSlider:TGPSlider_INTERFACE_BUILDER {
         sendActionForControlEvent(controlEvent: .valueChanged, with: event)
         sendActionForControlEvent(controlEvent: (touchesAreInside(touches)) ? .touchUpInside : .touchUpOutside,
                                   with: event)
+
+        thumbHeight = 28
+        thumbWidth = 28
+        drawThumb()
     }
 
     public override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -658,6 +668,10 @@ public class TGPDiscreteSlider:TGPSlider_INTERFACE_BUILDER {
 
         sendActionForControlEvent(controlEvent: .valueChanged, with:event)
         sendActionForControlEvent(controlEvent: .touchCancel, with:event)
+
+        thumbHeight = 28
+        thumbWidth = 28
+        drawThumb()
     }
 
 
